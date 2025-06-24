@@ -180,7 +180,7 @@ export default function ScarletraChatbot() {
             </div>
           )}
           
-          <div className="flex items-end space-x-3">
+          <div className="flex items-center space-x-3">
             <button
               onClick={() => fileInputRef.current?.click()}
               className="w-10 h-10 bg-red-800/50 hover:bg-red-700/50 rounded-full flex items-center justify-center transition-colors border border-red-700/50"
@@ -193,7 +193,7 @@ export default function ScarletraChatbot() {
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ketik pesan Anda... (coba: 'Berikan rekomendasi terkait topik AI')"
+                placeholder="Masukkan pesan Anda di sini..."
                 className="w-full bg-gray-800/50 border border-red-800/30 rounded-2xl px-4 py-3 pr-12 text-white placeholder-gray-400 focus:outline-none focus:border-red-600/50 focus:ring-2 focus:ring-red-600/20 resize-none max-h-32"
                 rows={1}
                 style={{ minHeight: '44px' }}
