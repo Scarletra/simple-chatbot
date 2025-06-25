@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     // Prepare context for file attachments
     let contextMessage = message;
     if (attachedFiles && attachedFiles.length > 0) {
-      const fileInfo = attachedFiles.map((file: any) => 
+      const fileInfo = attachedFiles.map((file: File) => 
         `File: ${file.name} (${file.type}, ${file.size} bytes)`
       ).join('\n');
       contextMessage = `${message}\n\nAttached files:\n${fileInfo}`;
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
           content: contextMessage,
         },
       ],
-      model: 'llama-3.3-70b-versatile', 
+      model: 'meta-llama/llama-4-scout-17b-16e-instruct', 
       temperature: 0.7,
       max_tokens: 1024,
     });

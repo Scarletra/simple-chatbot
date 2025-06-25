@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Message, AttachedFile } from '../types/chatbot';
-import { createAttachedFile, generateBotResponse, getRecommendations } from '../utils/chatbot';
+import { createAttachedFile, getRecommendations } from '../utils/chatbot';
 
 export const useChatbot = () => {
   const [messages, setMessages] = useState<Message[]>([
