@@ -13,6 +13,7 @@ export async function POST(request: NextRequest) {
   try {
     const { message, attachedFiles } = await request.json();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const parts: any[] = [
       {
         text: `Kamu adalah Scarletbot, asisten AI yang membantu dalam bahasa Indonesia. Jawab dengan ramah dan informatif.\n\n${message}`,

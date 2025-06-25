@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { AttachedFile, Message, ChatbotState } from '../types/chatbot';
+import { Message, ChatbotState } from '../types/chatbot';
 import { createAttachedFile, processAttachedFiles, getRecommendations } from '../utils/chatbot';
 
 export const useChatbot = () => {
