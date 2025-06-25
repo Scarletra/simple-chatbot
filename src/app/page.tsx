@@ -99,7 +99,7 @@ export default function ScarletraChatbot() {
                           
                           {/* Video */}
                           {rec.type === 'video' && (
-                            <div className="flex space-x-3">
+                            <div className="flex space-x-3 items-center">
                               <div className="relative">
                                 <img src={rec.thumbnail} alt={rec.title} className="w-20 h-14 rounded-lg object-cover" />
                                 <div className="absolute inset-0 flex items-center justify-center">
@@ -116,10 +116,9 @@ export default function ScarletraChatbot() {
                               {rec.downloadUrl && (
                                 <button
                                   onClick={() => handleDownload(rec.downloadUrl!, rec.filename || rec.title)}
-                                  className="mt-2 flex items-center space-x-1 px-3 py-1 bg-red-600 hover:bg-red-700 rounded-lg text-xs text-white transition-colors"
+                                  className="flex items-center justify-center space-x-1 px-3 py-1 bg-red-600 hover:bg-red-700 w-10 h-10 rounded-full text-xs text-white transition-colors cursor-pointer"
                                 >
-                                  <Download className="w-3 h-3" />
-                                  <span>Download</span>
+                                  <Download className="w-4 h-4" />
                                 </button>
                               )}
                             </div>
@@ -127,7 +126,7 @@ export default function ScarletraChatbot() {
                           
                           {/* PDF */}
                           {rec.type === 'pdf' && (
-                            <div className="flex items-center space-x-3">
+                            <div className="flex items-center space-x-3 items-center">
                               <div className="w-12 h-12 bg-red-700/30 rounded-lg flex items-center justify-center">
                                 <FileText className="w-6 h-6 text-red-300" />
                               </div>
@@ -138,9 +137,9 @@ export default function ScarletraChatbot() {
                               {rec.downloadUrl && (
                                 <button
                                   onClick={() => handleDownload(rec.downloadUrl!, rec.filename || rec.title)}
-                                  className="mt-2 flex items-center space-x-1 px-3 py-1 bg-red-600 hover:bg-red-700 rounded-lg text-xs text-white transition-colors"
+                                  className="flex items-center justify-center space-x-1 px-3 py-1 bg-red-600 hover:bg-red-700 w-10 h-10 rounded-full text-xs text-white transition-colors cursor-pointer"
                                 >
-                                  <Download className="w-3 h-3" />
+                                  <Download className="w-4 h-4" />
                                 </button>
                               )}
                             </div>
@@ -148,7 +147,7 @@ export default function ScarletraChatbot() {
                           
                           {/* Image */}
                           {rec.type === 'image' && (
-                            <div className="flex space-x-3">
+                            <div className="flex space-x-3 items-center">
                               <img src={rec.src} alt={rec.title} className="w-20 h-14 rounded-lg object-cover" />
                               <div className="flex-1">
                                 <h4 className="font-medium text-red-200">{rec.title}</h4>
@@ -157,9 +156,9 @@ export default function ScarletraChatbot() {
                               {rec.downloadUrl && (
                                 <button
                                   onClick={() => handleDownload(rec.downloadUrl!, rec.filename || rec.title)}
-                                  className="mt-2 flex items-center space-x-1 px-3 py-1 bg-red-600 hover:bg-red-700 rounded-lg text-xs text-white transition-colors"
+                                  className="flex items-center justify-center space-x-1 px-3 py-1 bg-red-600 hover:bg-red-700 w-10 h-10 rounded-full text-xs text-white transition-colors cursor-pointer"
                                 >
-                                  <Download className="w-3 h-3" />
+                                  <Download className="w-4 h-4" />
                                 </button>
                               )}
                             </div>
