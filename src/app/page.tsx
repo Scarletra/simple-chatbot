@@ -2,7 +2,7 @@
 
 import { useChatbot } from './lib/hooks/useChatbot';
 import { formatFileSize } from './lib/utils/chatbot';
-import { Send, Paperclip, Bot, User, X, File, FileImage, FileText, Video } from 'lucide-react';
+import { Send, Paperclip, Bot, User, X, File, FileImage, FileText, Video, Download } from 'lucide-react';
 
 export default function ScarletraChatbot() {
   const {
@@ -18,6 +18,16 @@ export default function ScarletraChatbot() {
     sendMessage,
     handleKeyPress
   } = useChatbot();
+
+  const handleDownload = (downloadUrl: string, filename: string) => {
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = filename;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const getFileIcon = (fileType: string) => {
     if (fileType.startsWith('image/')) return <FileImage className="w-4 h-4" />;
@@ -86,6 +96,8 @@ export default function ScarletraChatbot() {
                     <div className="mt-4 space-y-3">
                       {message.recommendations.map((rec, index) => (
                         <div key={index} className="bg-black/30 rounded-xl p-4 border border-red-800/30">
+                          
+                          {/* Video */}
                           {rec.type === 'video' && (
                             <div className="flex space-x-3">
                               <div className="relative">
@@ -101,9 +113,19 @@ export default function ScarletraChatbot() {
                                 <h4 className="font-medium text-red-200">{rec.title}</h4>
                                 <p className="text-xs text-gray-400 mt-1">Video Tutorial</p>
                               </div>
+                              {rec.downloadUrl && (
+                                <button
+                                  onClick={() => handleDownload(rec.downloadUrl!, rec.filename || rec.title)}
+                                  className="mt-2 flex items-center space-x-1 px-3 py-1 bg-red-600 hover:bg-red-700 rounded-lg text-xs text-white transition-colors"
+                                >
+                                  <Download className="w-3 h-3" />
+                                  <span>Download</span>
+                                </button>
+                              )}
                             </div>
                           )}
                           
+                          {/* PDF */}
                           {rec.type === 'pdf' && (
                             <div className="flex items-center space-x-3">
                               <div className="w-12 h-12 bg-red-700/30 rounded-lg flex items-center justify-center">
@@ -113,16 +135,33 @@ export default function ScarletraChatbot() {
                                 <h4 className="font-medium text-red-200">{rec.title}</h4>
                                 <p className="text-xs text-gray-400">{rec.pages} halaman • {rec.size}</p>
                               </div>
+                              {rec.downloadUrl && (
+                                <button
+                                  onClick={() => handleDownload(rec.downloadUrl!, rec.filename || rec.title)}
+                                  className="mt-2 flex items-center space-x-1 px-3 py-1 bg-red-600 hover:bg-red-700 rounded-lg text-xs text-white transition-colors"
+                                >
+                                  <Download className="w-3 h-3" />
+                                </button>
+                              )}
                             </div>
                           )}
                           
+                          {/* Image */}
                           {rec.type === 'image' && (
                             <div className="flex space-x-3">
                               <img src={rec.src} alt={rec.title} className="w-20 h-14 rounded-lg object-cover" />
                               <div className="flex-1">
                                 <h4 className="font-medium text-red-200">{rec.title}</h4>
-                                <p className="text-xs text-gray-400 mt-1">Gambar Referensi</p>
+                                <p className="text-xs text-gray-400 mt-1">Sumber tidak diketahui</p>
                               </div>
+                              {rec.downloadUrl && (
+                                <button
+                                  onClick={() => handleDownload(rec.downloadUrl!, rec.filename || rec.title)}
+                                  className="mt-2 flex items-center space-x-1 px-3 py-1 bg-red-600 hover:bg-red-700 rounded-lg text-xs text-white transition-colors"
+                                >
+                                  <Download className="w-3 h-3" />
+                                </button>
+                              )}
                             </div>
                           )}
                         </div>

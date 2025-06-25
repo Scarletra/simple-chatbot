@@ -46,20 +46,26 @@ export const processAttachedFiles = async (files: AttachedFile[]): Promise<Attac
 export const getRecommendations = (): Recommendation[] => [
   {
     type: 'video',
-    title: 'Tutorial Komprehensif tentang Topik Ini',
-    thumbnail: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=300&h=200&fit=crop',
-    duration: '15:30'
+    title: 'Video Demonstrasi Cara Membuat Moving Object pada Unity',
+    thumbnail: '/uploads/rekomendasi-thumbnail.png',
+    duration: '4:30',
+    downloadUrl: '/uploads/rekomendasi-video.mp4',
+    filename: 'tutorial-unity.mp4'
   },
   {
     type: 'pdf',
-    title: 'Panduan Lengkap & Best Practices',
-    pages: 45,
-    size: '2.3 MB'
+    title: 'Catatan Materi Kriptografi untuk Pemula',
+    pages: 12,
+    size: '2.3 MB',
+    downloadUrl: '/uploads/rekomendasi-dokumen.pdf',
+    filename: 'catatan-kriptografi.pdf'
   },
   {
     type: 'image',
-    title: 'Infografik & Diagram Penjelasan',
-    src: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=200&fit=crop'
+    title: 'Contoh Case Study Rekayasa Perangkat Lunak',
+    src: '/uploads/rekomendasi-gambar.png',
+    downloadUrl: '/uploads/rekomendasi-gambar.png',
+    filename: 'contoh-casestudy.png'
   }
 ];
 

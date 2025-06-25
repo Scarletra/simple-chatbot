@@ -15,6 +15,8 @@ export interface Recommendation {
   pages?: number;
   size?: string;
   src?: string;
+  downloadUrl?: string;
+  filename?: string;
 }
 
 export interface Message {
