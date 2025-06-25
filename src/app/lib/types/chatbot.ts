@@ -4,7 +4,7 @@ export interface AttachedFile {
   type: string;
   size: number;
   file: File;
-  data: String;
+  data?: string;
 }
 
 export interface Recommendation {

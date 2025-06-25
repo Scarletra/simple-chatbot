@@ -16,6 +16,33 @@ export const createAttachedFile = (file: File): AttachedFile => ({
   file: file
 });
 
+export const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = error => reject(error);
+  });
+};
+
+export const processAttachedFiles = async (files: AttachedFile[]): Promise<AttachedFile[]> => {
+  const processedFiles = await Promise.all(
+    files.map(async (attachedFile) => {
+      try {
+        const base64Data = await fileToBase64(attachedFile.file);
+        return {
+          ...attachedFile,
+          data: base64Data
+        };
+      } catch (error) {
+        console.error('Error processing file:', attachedFile.name, error);
+        return attachedFile;
+      }
+    })
+  );
+  return processedFiles;
+};
+
 export const getRecommendations = (): Recommendation[] => [
   {
     type: 'video',

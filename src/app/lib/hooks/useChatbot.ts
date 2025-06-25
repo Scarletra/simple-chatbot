@@ -1,121 +1,135 @@
 import { useState, useRef, useEffect } from 'react';
-import { Message, AttachedFile } from '../types/chatbot';
-import { createAttachedFile, getRecommendations } from '../utils/chatbot';
+import { AttachedFile, Message, ChatbotState } from '../types/chatbot';
+import { createAttachedFile, processAttachedFiles, getRecommendations } from '../utils/chatbot';
 
 export const useChatbot = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      type: 'bot',
-      content: 'Halo! Saya Scarletbot, asisten AI Anda. Bagaimana saya bisa membantu Anda hari ini?',
-      timestamp: new Date()
-    }
-  ]);
-  
-  const [inputMessage, setInputMessage] = useState('');
-  const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
-  
+  const [state, setState] = useState<ChatbotState>({
+    messages: [],
+    inputMessage: '',
+    attachedFiles: [],
+    isTyping: false
+  });
+
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [state.messages, state.isTyping]);
+
+  const setInputMessage = (message: string) => {
+    setState(prev => ({ ...prev, inputMessage: message }));
+  };
 
   const handleFileAttach = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    const newFiles = files.map(createAttachedFile);
-    setAttachedFiles(prev => [...prev, ...newFiles]);
+    const newAttachedFiles = files.map(createAttachedFile);
+    
+    setState(prev => ({
+      ...prev,
+      attachedFiles: [...prev.attachedFiles, ...newAttachedFiles]
+    }));
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const removeFile = (fileId: number) => {
-    setAttachedFiles(prev => prev.filter(file => file.id !== fileId));
+    setState(prev => ({
+      ...prev,
+      attachedFiles: prev.attachedFiles.filter(file => file.id !== fileId)
+    }));
   };
 
-  const simulateTyping = () => {
-    setIsTyping(true);
-    setTimeout(() => {
-      setIsTyping(false);
-    }, 1500);
-  };
+  const sendMessage = async () => {
+    if (state.inputMessage.trim() === '' && state.attachedFiles.length === 0) {
+      return;
+    }
 
-  // Ganti fungsi generateBotResponse dengan yang async
-const sendMessage = async () => {
-  if (inputMessage.trim() === '' && attachedFiles.length === 0) return;
-
-  const newMessage: Message = {
+    const userMessage: Message = {
       id: Date.now(),
       type: 'user',
-      content: inputMessage,
-      files: attachedFiles.length > 0 ? attachedFiles : undefined,
+      content: state.inputMessage,
+      files: state.attachedFiles.length > 0 ? state.attachedFiles : undefined,
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, newMessage]);
-    
-    // Show typing indicator
-    simulateTyping();
-    
+    setState(prev => ({
+      ...prev,
+      messages: [...prev.messages, userMessage],
+      inputMessage: '',
+      attachedFiles: [],
+      isTyping: true
+    }));
+
     try {
+      const processedFiles = await processAttachedFiles(state.attachedFiles);
+      
+      const requestData = {
+        message: state.inputMessage,
+        attachedFiles: processedFiles.map(file => ({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          data: file.data
+        }))
+      };
+
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          message: inputMessage,
-          attachedFiles: attachedFiles
-        }),
+        body: JSON.stringify(requestData)
       });
 
-      const data = await response.json();
-      
-      setTimeout(() => {
-        if (data.success) {
-          const botResponse: Message = {
-            id: Date.now() + 1,
-            type: 'bot',
-            content: data.response,
-            recommendations: data.shouldShowRecommendation ? getRecommendations() : undefined,
-            timestamp: new Date()
-          };
-          setMessages(prev => [...prev, botResponse]);
-        } else {
-          // Error fallback
-          const errorResponse: Message = {
-            id: Date.now() + 1,
-            type: 'bot',
-            content: 'Maaf, terjadi kesalahan. Silakan coba lagi.',
-            timestamp: new Date()
-          };
-          setMessages(prev => [...prev, errorResponse]);
-        }
-      }, 1500);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-    } catch (error) {
-      console.error('Error sending message:', error);
-      setTimeout(() => {
-        const errorResponse: Message = {
+      const data = await response.json();
+
+      if (data.success) {
+        const botMessage: Message = {
           id: Date.now() + 1,
           type: 'bot',
-          content: 'Maaf, terjadi kesalahan koneksi. Silakan coba lagi.',
+          content: data.response,
+          recommendations: data.shouldShowRecommendation ? getRecommendations() : undefined,
           timestamp: new Date()
         };
-        setMessages(prev => [...prev, errorResponse]);
-      }, 1500);
-    }
 
-    // Reset input
-    setInputMessage('');
-    setAttachedFiles([]);
+        setState(prev => ({
+          ...prev,
+          messages: [...prev.messages, botMessage],
+          isTyping: false
+        }));
+      } else {
+        throw new Error(data.error || 'Unknown error occurred');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      
+      const errorMessage: Message = {
+        id: Date.now() + 1,
+        type: 'bot',
+        content: `Maaf, terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        timestamp: new Date()
+      };
+
+      setState(prev => ({
+        ...prev,
+        messages: [...prev.messages, errorMessage],
+        isTyping: false
+      }));
+    }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
@@ -123,17 +137,12 @@ const sendMessage = async () => {
   };
 
   return {
-    // State
-    messages,
-    inputMessage,
-    attachedFiles,
-    isTyping,
-    
-    // Refs
+    messages: state.messages,
+    inputMessage: state.inputMessage,
+    attachedFiles: state.attachedFiles,
+    isTyping: state.isTyping,
     fileInputRef,
     messagesEndRef,
-    
-    // Actions
     setInputMessage,
     handleFileAttach,
     removeFile,

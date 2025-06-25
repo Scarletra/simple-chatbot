@@ -1,7 +1,13 @@
-import { AttachedFile } from '@/app/lib/types/chatbot';
 import { NextRequest, NextResponse } from 'next/server';
 
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent';
+
+interface AttachedFile {
+  name: string;
+  type: string;
+  size: number;
+  data?: string;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,15 +21,21 @@ export async function POST(request: NextRequest) {
 
     if (attachedFiles && attachedFiles.length > 0) {
       for (const file of attachedFiles as AttachedFile[]) {
-        if (file.type.startsWith('image/')) {
+        if (file.data && file.type.startsWith('image/')) {
+          const base64Data = file.data.includes(',') 
+            ? file.data.split(',')[1] 
+            : file.data;
+          
           parts.push({
             inline_data: {
               mime_type: file.type,
-              data: file.data.split(',')[1],
+              data: base64Data,
             },
           });
-        } else {
+        } else if (file.data) {
           parts[0].text += `\n\nFile terlampir: ${file.name} (${file.type})`;
+        } else {
+          parts[0].text += `\n\nFile terlampir: ${file.name} (${file.type}) - tidak dapat diproses`;
         }
       }
     }
