@@ -79,7 +79,7 @@ export const useChatbot = () => {
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let requestData: any = {
+      const requestData: any = {
         message: currentMessage,
         attachedFiles: []
       };
