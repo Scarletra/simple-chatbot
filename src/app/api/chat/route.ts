@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { shouldShowRecommendation, getRecommendationSuffix, parseMarkdown } from '@/app/lib/utils/chatbot';
 
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent';
 
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const parts: any[] = [
       {
-        text: `Kamu adalah Scarletbot, asisten AI yang membantu dalam bahasa Indonesia. Jawab dengan ramah dan informatif.\n\n${message}`,
+        text: `Kamu adalah Scarletbot, asisten AI yang membantu dalam bahasa Indonesia. Jawab dengan ramah dan informatif. Gunakan format markdown jika perlu (misal **text** untuk bold).\n\n${message}`,
       },
     ];
 
@@ -117,12 +118,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const response = candidate?.content?.parts?.[0]?.text ?? 'Maaf, saya tidak dapat memproses permintaan Anda.';
+    let response = candidate?.content?.parts?.[0]?.text ?? 'Maaf, saya tidak dapat memproses permintaan Anda.';
+
+    const showRecommendation = shouldShowRecommendation(message);
+    
+    if (showRecommendation) {
+      response += getRecommendationSuffix();
+    }
+
+    const parsedResponse = parseMarkdown(response);
 
     return NextResponse.json({
       success: true,
-      response,
-      shouldShowRecommendation: message.toLowerCase().includes('berikan rekomendasi terkait topik'),
+      response: parsedResponse,
+      showRecommendation: showRecommendation // Ganti dari shouldShowRecommendation
     });
   } catch (error) {
     console.error('Error calling Gemini API:', error);

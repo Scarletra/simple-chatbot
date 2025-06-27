@@ -1,7 +1,7 @@
 'use client';
 
 import { useChatbot } from './lib/hooks/useChatbot';
-import { formatFileSize } from './lib/utils/chatbot';
+import { formatFileSize, parseBoldToJSX } from './lib/utils/chatbot';
 import { Send, Paperclip, Bot, User, X, File, FileImage, FileText, Video, Download } from 'lucide-react';
 
 export default function ScarletraChatbot() {
@@ -75,7 +75,7 @@ export default function ScarletraChatbot() {
                     : 'bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700/50'
                 }`}>
                   {message.content && (
-                    <p className="text-sm leading-relaxed">{message.content}</p>
+                    <p className="text-sm leading-relaxed">{parseBoldToJSX(message.content)}</p>
                   )}
                   
                   {/* File attachments */}
@@ -126,7 +126,7 @@ export default function ScarletraChatbot() {
                           
                           {/* PDF */}
                           {rec.type === 'pdf' && (
-                            <div className="flex items-center space-x-3 items-center">
+                            <div className="flex space-x-3 items-center">
                               <div className="w-12 h-12 bg-red-700/30 rounded-lg flex items-center justify-center">
                                 <FileText className="w-6 h-6 text-red-300" />
                               </div>

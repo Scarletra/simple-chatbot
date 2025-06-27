@@ -1,3 +1,4 @@
+import { JSX } from 'react';
 import { AttachedFile, Recommendation } from '../types/chatbot';
 
 export const formatFileSize = (bytes: number): string => {
@@ -70,8 +71,36 @@ export const getRecommendations = (): Recommendation[] => [
 ];
 
 export const shouldShowRecommendation = (message: string): boolean => {
-  return message.toLowerCase().includes('berikan rekomendasi terkait topik');
+  const keywords = ['berikan', 'rekomendasi', 'terkait', 'topik'];
+  const lowerMessage = message.toLowerCase();
+  
+  const matchedKeywords = keywords.filter(keyword => 
+    lowerMessage.includes(keyword)
+  );
+  
+  return matchedKeywords.length >= 3;
 };
+
+export const parseMarkdown = (text: string): string => {
+  return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+};
+
+export const getRecommendationSuffix = (): string => {
+  return "\n\n---\n\n**Rekomendasi Konten Tambahan:**\n\nSelain jawaban di atas, kami juga menyediakan konten pembelajaran tambahan berupa video tutorial, dokumen PDF, dan gambar ilustrasi yang dapat membantu memperdalam pemahaman Anda tentang topik ini. Silakan lihat rekomendasi di bawah ini!";
+};
+
+export const parseBoldToJSX = (text: string): (string | JSX.Element)[] => {
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  
+  return parts.map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
+      const boldText = part.slice(2, -2);
+      return <strong key={index}>{boldText}</strong>;
+    }
+    return part;
+  }).filter(part => part !== '');
+};
+
 
 export const generateBotResponse = (userMessage: string) => {
   const baseResponse = {

@@ -1,10 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
-import { Message, ChatbotState } from '../types/chatbot';
+import { Message, ChatbotState, AttachedFile } from '../types/chatbot';
 import { createAttachedFile, processAttachedFiles, getRecommendations } from '../utils/chatbot';
 
 export const useChatbot = () => {
   const [state, setState] = useState<ChatbotState>({
-    messages: [],
+    messages: [
+      {
+        id: 1,
+        type: 'bot',
+        content: 'Halo! Saya Scarletbot, asisten AI Anda. Bagaimana saya bisa membantu Anda hari ini?',
+        timestamp: new Date()
+      }
+    ],
     inputMessage: '',
     attachedFiles: [],
     isTyping: false
@@ -51,11 +58,14 @@ export const useChatbot = () => {
       return;
     }
 
+    const currentMessage = state.inputMessage;
+    const currentFiles = state.attachedFiles;
+
     const userMessage: Message = {
       id: Date.now(),
       type: 'user',
-      content: state.inputMessage,
-      files: state.attachedFiles.length > 0 ? state.attachedFiles : undefined,
+      content: currentMessage,
+      files: currentFiles.length > 0 ? currentFiles : undefined,
       timestamp: new Date()
     };
 
@@ -68,17 +78,20 @@ export const useChatbot = () => {
     }));
 
     try {
-      const processedFiles = await processAttachedFiles(state.attachedFiles);
-      
-      const requestData = {
-        message: state.inputMessage,
-        attachedFiles: processedFiles.map(file => ({
+      let requestData: any = {
+        message: currentMessage,
+        attachedFiles: []
+      };
+
+      if (currentFiles.length > 0) {
+        const processedFiles = await processAttachedFiles(currentFiles);
+        requestData.attachedFiles = processedFiles.map(file => ({
           name: file.name,
           type: file.type,
           size: file.size,
           data: file.data
-        }))
-      };
+        }));
+      }
 
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -98,8 +111,8 @@ export const useChatbot = () => {
         const botMessage: Message = {
           id: Date.now() + 1,
           type: 'bot',
-          content: data.response,
-          recommendations: data.shouldShowRecommendation ? getRecommendations() : undefined,
+          content: data.response, 
+          recommendations: data.showRecommendation ? getRecommendations() : undefined, // Ganti dari shouldShowRecommendation
           timestamp: new Date()
         };
 
