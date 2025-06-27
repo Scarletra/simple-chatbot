@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       response: parsedResponse,
-      showRecommendation: showRecommendation // Ganti dari shouldShowRecommendation
+      showRecommendation: showRecommendation
     });
   } catch (error) {
     console.error('Error calling Gemini API:', error);
